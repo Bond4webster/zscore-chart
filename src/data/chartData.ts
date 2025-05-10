@@ -11,15 +11,12 @@ export const originalData: DataPoint[] = [
   { name: 'Page G', uv: 3490, pv: 4300 },
 ]
 
-// Извлекаем значения для каждой серии данных
 const uvValues = originalData.map((item) => item.uv)
 const pvValues = originalData.map((item) => item.pv)
 
-// Рассчитываем z-score для каждой серии
 const uvZScores = calculateZScores(uvValues)
 const pvZScores = calculateZScores(pvValues)
 
-// Создаем новый набор данных, включающий z-score
 export const dataWithZScores: ZScoreDataPoint[] = originalData.map((item, index) => {
   const { name, uv, pv } = item
   const uvZScore = uvZScores[index]

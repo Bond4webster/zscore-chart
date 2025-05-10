@@ -1,5 +1,6 @@
 import { Line } from 'recharts'
-import type { SegmentColor, ZScoreDataPoint } from '../types'
+import type { LineName, ZScoreDataPoint } from '../types'
+import { determineColorSegments } from './statistics'
 
 type DotProps =
   | {
@@ -8,8 +9,6 @@ type DotProps =
       index: number
     }
   | any
-
-type LineName = 'uv' | 'pv'
 
 const renderDot = (props: DotProps, r: number, name: LineName, data: ZScoreDataPoint[]) => {
   const { cx, cy, index } = props
@@ -21,9 +20,10 @@ const renderDot = (props: DotProps, r: number, name: LineName, data: ZScoreDataP
   )
 }
 
-export const renderLines = (name: LineName, data: ZScoreDataPoint[]) => {
-  return (
+export const renderLines = (names: LineName[], data: ZScoreDataPoint[]) => {
+  return names.map((name) => (
     <Line
+      key={name}
       type="monotone"
       name={name}
       dataKey={(props) => props[name].value}
@@ -33,17 +33,24 @@ export const renderLines = (name: LineName, data: ZScoreDataPoint[]) => {
       isAnimationActive={false}
       connectNulls
     />
-  )
+  ))
 }
 
-export const renderGradient = (name: LineName, gradient: SegmentColor[]) => {
-  return (
-    <defs>
-      <linearGradient id={`${name}Gradient`} x1="0" y1="0" x2="100%" y2="0">
-        {gradient.map((el) => (
-          <stop key={el.offset} offset={el.offset * 100 + '%'} stopColor={el.color} />
-        ))}
-      </linearGradient>
-    </defs>
-  )
+export const renderGradients = (names: LineName[], data: ZScoreDataPoint[]) => {
+  return names.map((name) => {
+    const color = data[0][name].color
+    const gradient = determineColorSegments(
+      data.map((el) => el[name].isAboveZScore),
+      color
+    )
+    return (
+      <defs key={name}>
+        <linearGradient id={`${name}Gradient`} x1="0" y1="0" x2="100%" y2="0">
+          {gradient.map((el) => (
+            <stop key={el.offset} offset={el.offset * 100 + '%'} stopColor={el.color} />
+          ))}
+        </linearGradient>
+      </defs>
+    )
+  })
 }

@@ -21,3 +21,5 @@ export interface SegmentColor {
   offset: number
   color: string
 }
+
+export type LineName = 'uv' | 'pv'
